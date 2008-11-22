@@ -24,6 +24,8 @@ def populate_songs(db, startdate, enddate):
 
 	thisdate = startdate
 	while thisdate <= enddate:
+		if thisdate.day == 1:
+			print("Working on "+str(thisdate.month)+"-"+str(thisdate.year))
 		count = 0
 		for song in songs_for_day(thisdate):
 			c.execute('insert into songs\
@@ -37,10 +39,24 @@ def populate_songs(db, startdate, enddate):
 	connection.commit()
 	c.close()
 
+def normalize(string):
+	string = unicode(string)
+	# Filter anything out of the ordinary, including punctuation
+	rexp = re.compile('[^\w\s\d]')
+	string = rexp.sub('', string)
+	# Compress whitespace
+	rexp = re.compile('\s+')
+	string = rexp.sub(' ', string)
+	# Lowercase everything
+	string = string.lower()
+	# trim whitespace
+	string = string.strip()
+	return string
+
 def songs_for_day(date):
 	page = urllib.urlopen("http://minnesota.publicradio.org/radio/services/the_current/songs_played/?month="+str(date.month)+"&day="+str(date.day)+"&year="+str(date.year))
 
-	soup = BeautifulSoup(page.read())
+	soup = BeautifulSoup(page.read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
 	divs = soup.findAll('div', { "class" : ["playlist_time", "playlist_title"] })
 	for div in divs:
 		if div['class'] == "playlist_time":
@@ -51,6 +67,10 @@ def songs_for_day(date):
 			song_title = ''.join(div.findAll(text=True, recursive=False))
 			song_title = re.sub(r'\s*-\s+', r'', song_title)
 			#print play_time + " " + artist + " - " + song_title
+			if artist == None or song_title == None:
+				continue
+			artist = normalize(artist)
+			song_title = normalize(song_title)
 			yield (play_time, artist, song_title)
 
 def dump_db():
@@ -70,4 +90,3 @@ start = datetime.date(2005, 12, 22)
 end = datetime.date(2008, 10, 22)
 populate_songs(db, start, end)
 dump_db()
-
