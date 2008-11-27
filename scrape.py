@@ -36,6 +36,15 @@ def populate_songs(db, startdate, enddate):
 				values (?, ?)', (thisdate.isoformat(), count))
 		thisdate = thisdate + datetime.timedelta(1)
 
+	# Clean up duplicate entries that exist in the Current's playlists
+	c.execute('''delete from songs where id in \
+			(select b.id from songs a, songs b \
+			where a.date_played=b.date_played \
+			and a.time_played=b.time_played \
+			and a.artist=b.artist \
+			and a.title=b.title \
+			and a.id<b.id)''')
+
 	connection.commit()
 	c.close()
 
@@ -100,5 +109,6 @@ else:
 
 start = datetime.date(2005, 12, 22)
 end = datetime.date(2008, 10, 22)
+#end = datetime.date(2006, 1, 2)
 populate_songs(db, start, end)
 dump_db()
