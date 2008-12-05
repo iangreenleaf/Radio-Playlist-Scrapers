@@ -23,14 +23,18 @@ import datetime
 import sys
 from dateutil.relativedelta import relativedelta
 
+# Get the DB from cli argument, or just use a default
 if len(sys.argv) > 1:
 	db = sys.argv[1]
 else:
 	db = './tmpdb'
 
+# Initialize the DB. Yeah, this is global.
 connection = sqlite3.connect(db)
 c = connection.cursor()
 
+# If you're reading this, sorry about the lack of comments. Check out the
+# functions further down for descriptively-named stuff.
 def aggregate_by_period(start, end, timedelta, columns, groupby="", orderby="date_played", constraints=""):
 	if groupby:
 		groupby = " group by "+groupby
