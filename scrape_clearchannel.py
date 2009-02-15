@@ -52,17 +52,19 @@ def append_songs(db, url, cushion_minutes=60):
 	c.execute('insert into parsed_info\
 			values (?, ?)', (thisdate.isoformat(), count))
 
-	if (len(inserted) == 0 or len(inserted) > 3):
+	if (len(inserted) > 5):
 		print db + ': Got ' + str(len(inserted)) + ' insertions, which seems odd'
 	if dupe_warning:
 		print db + ': Duplicates detected out of order'
-	if (len(inserted) == 0 or len(inserted) > 3) or dupe_warning:
+	if len(inserted) > 5 or dupe_warning:
 		print 'Inserted: ' + str(inserted)
 		print 'Dupes: ' + str(dupes)
 		print 'Recent songs: ' + str(recentsongsresult)
 
 	connection.commit()
 	c.close()
+
+	return len(inserted)
 
 
 def last_10_songs(url):
@@ -110,7 +112,11 @@ def normalize(string):
 stations = {'cities97': 'http://www.cities97.com/iplaylist/playlist.html?last10=1',
 		'kdwb': 'http://www.kdwb.com/iplaylist/playlist.html?last10=1',
 		'kool108': 'http://www.kool108.com/iplaylist/playlist.html?last10=1'}
+sum = 0
 for key in stations:
 	db = '/home/youngian/scraper/' + key + '.sqlite'
 	url = stations[key]
-	append_songs(db, url)
+	sum += append_songs(db, url)
+
+if sum == 0:
+	print 'No insertions on any station. I\'m vaguely concerned.'
