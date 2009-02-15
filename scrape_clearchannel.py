@@ -61,9 +61,9 @@ def append_songs(db, url, cushion_minutes=60):
 			values (?, ?)', (thisdate.isoformat(), count))
 
 	if (len(inserted) == 0 or len(inserted) > 3):
-		print 'Got ' + str(len(inserted)) + ' insertions, which seems odd'
+		print db + ': Got ' + str(len(inserted)) + ' insertions, which seems odd'
 	if dupe_warning:
-		print 'Duplicates detected out of order'
+		print db + ': Duplicates detected out of order'
 	if (len(inserted) == 0 or len(inserted) > 3) or dupe_warning:
 		print 'Inserted: ' + str(inserted)
 		print 'Dupes: ' + str(dupes)
