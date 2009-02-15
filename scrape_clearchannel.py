@@ -14,18 +14,10 @@ def append_songs(db, url, cushion_minutes=60):
 	c = connection.cursor()
 
 	thisdate = datetime.date.today()
-	cushiondelta = datetime.timedelta(minutes=cushion_minutes)
-	cushion = datetime.datetime.now(tz=pytz.utc)
-	central = timezone('US/Central')
-	cushion = cushion.astimezone(central)
-	cushion = cushion - cushiondelta
 
 	c.execute('''select title from songs\
-			where date_played >= ?\
-			and time_played >= ?
-			order by date_played,time_played''',
-			(cushion.date().isoformat(), cushion.time().isoformat()))
-			#(thisdate.isoformat(), datetime.now() - cushiondelta)
+			order by date_played desc,time_played desc
+			limit 10''')
 
 	recentsongsresult = c.fetchall()
 	recentsongs = []
