@@ -22,7 +22,8 @@ def append_songs(db, url, cushion_minutes=60):
 
 	c.execute('''select title from songs\
 			where date_played >= ?\
-			and time_played >= ?''',
+			and time_played >= ?
+			order by date_played,time_played''',
 			(cushion.date().isoformat(), cushion.time().isoformat()))
 			#(thisdate.isoformat(), datetime.now() - cushiondelta)
 
@@ -31,15 +32,26 @@ def append_songs(db, url, cushion_minutes=60):
 	for row in recentsongsresult:
 		recentsongs.append(row[0])
 
+	# Let's set up to do a bit of sanity checking
+	dupe_found = False
+	dupe_warning = False
+	dupes = []
+	inserted = []
+
 	count = 0
 	for song in last_10_songs(url):
 		if song[2] in recentsongs:
+			dupe_found = True
+			dupes.append(song[2])
 			continue
 		else:
+			if dupe_found:
+				dupe_warning = True
 			date = song[0].date()
 			time = song[0].time()
 			artist = song[1]
 			title = song[2]
+			inserted.append(song)
 			c.execute('insert into songs\
 					(date_played, time_played, artist, title)\
 					values (?, ?, ?, ?)', (date.isoformat(), time.isoformat(), artist, title))
@@ -47,6 +59,15 @@ def append_songs(db, url, cushion_minutes=60):
 
 	c.execute('insert into parsed_info\
 			values (?, ?)', (thisdate.isoformat(), count))
+
+	if (len(inserted) == 0 or len(inserted) > 3):
+		print 'Got ' + str(len(inserted)) + ' insertions, which seems odd'
+	if dupe_warning:
+		print 'Duplicates detected out of order'
+	if (len(inserted) == 0 or len(inserted) > 3) or dupe_warning:
+		print 'Inserted: ' + str(inserted)
+		print 'Dupes: ' + str(dupes)
+		print 'Recent songs: ' + str(recentsongsresult)
 
 	connection.commit()
 	c.close()
