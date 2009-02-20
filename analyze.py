@@ -115,6 +115,36 @@ def most_played_songs_by_month(start, end):
 	return aggregate_by_period(start, end, monthdelta,\
 			"count(*) as c, artist, title", "title, artist", "c desc limit 5")
 
+def threshhold_helper(begin, length, threshhold):
+	subquery = "select count(*) as c, artist, title from songs where date_played >= ? and date_played < ? group by artist, title"
+	query = "select artist, title from (" + subquery + ") where c > ?"
+	c.execute(query, (begin, begin + length, threshhold))
+	return c.fetchall()
+
+def played_threshhold_by_week(start, end, threshhold):
+	weekdelta = datetime.timedelta(7)
+	#results = aggregate_by_period(start, end, weekdelta,\
+	#		"count(*) as c, artist, title", "title, artist", "c desc limit " + str(threshhold))
+	starting_set = threshhold_helper(start, weekdelta, threshhold)
+	week_arr = {}
+	i = 0
+	while len(starting_set) > 0:
+		i += 1
+		week_arr[i] = []
+		new_week = threshhold_helper(start + weekdelta * i, weekdelta, threshhold)
+		for song in starting_set:
+			found = False
+			for new_song in new_week:
+				if song[0] == new_song[0] and song[1] == new_song[1]:
+					found = True
+					break
+
+			if not found:
+				week_arr[i].append(song)
+				starting_set.remove(song)
+
+	return week_arr
+
 def unique_song_ratio_by_week_drivetime(start, end):
 	weekdelta = datetime.timedelta(7)
 	return aggregate_by_period(start, end, weekdelta, "min(date_played), (1.0 * count(distinct title)) / count(title)", constraints="(time_played > time('06:00') and time_played < time('10:00')) or (time_played > time('15:00') and time_played < ('19:00'))")
@@ -150,3 +180,5 @@ end = datetime.date(2008, 11, 22)
 #	print(','+starttime.strftime("%H:%M")+'-'+endtime.strftime("%H:%M"))
 #	array_to_csv(unique_song_ratio_by_month_and_time(start, end, starttime, endtime))
 
+for n,l in played_threshhold_by_week(start, end, 5).iteritems():
+	print str(n) + ',' + str(len(l))
