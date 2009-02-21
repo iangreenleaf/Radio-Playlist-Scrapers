@@ -15,14 +15,14 @@ def append_songs(db, url, cushion_minutes=60):
 
 	thisdate = datetime.date.today()
 
-	c.execute('''select title from songs\
+	c.execute('''select title,artist from songs\
 			order by date_played desc,time_played desc
 			limit 10''')
 
 	recentsongsresult = c.fetchall()
 	recentsongs = []
 	for row in recentsongsresult:
-		recentsongs.append(row[0])
+		recentsongs.append(row[1] + row[0])
 
 	# Let's set up to do a bit of sanity checking
 	dupe_found = False
@@ -32,15 +32,17 @@ def append_songs(db, url, cushion_minutes=60):
 
 	count = 0
 	for song in last_10_songs(url):
-		if song[2] in recentsongs:
+		if song[1] + song[2] in recentsongs:
 			dupe_found = True
-			dupes.append(song[2])
+			dupes.append(song[1] + song[2])
 			continue
 		else:
 			if dupe_found:
 				dupe_warning = True
-			date = song[0].date()
-			time = song[0].time()
+			# This should keep our songs in the order they were parsed
+			dt = song[0] - datetime.timedelta(minutes = count)
+			date = dt.date()
+			time = dt.time()
 			artist = song[1]
 			title = song[2]
 			inserted.append(song)
