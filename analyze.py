@@ -121,7 +121,7 @@ def threshhold_helper(begin, length, threshhold):
 	c.execute(query, (begin, begin + length, threshhold))
 	return c.fetchall()
 
-def played_threshhold_by_week(start, end, threshhold):
+def longevity_threshhold_by_week(start, threshhold):
 	weekdelta = datetime.timedelta(7)
 	#results = aggregate_by_period(start, end, weekdelta,\
 	#		"count(*) as c, artist, title", "title, artist", "c desc limit " + str(threshhold))
@@ -132,6 +132,7 @@ def played_threshhold_by_week(start, end, threshhold):
 		i += 1
 		week_arr[i] = []
 		new_week = threshhold_helper(start + weekdelta * i, weekdelta, threshhold)
+		# Not the fastest search, but that's okay
 		for song in starting_set:
 			found = False
 			for new_song in new_week:
@@ -144,6 +145,28 @@ def played_threshhold_by_week(start, end, threshhold):
 				starting_set.remove(song)
 
 	return week_arr
+
+def longevity_avg_by_week(start, end, threshhold):
+	weekdelta = datetime.timedelta(7)
+	timedelta = weekdelta
+	curr = start
+	results = []
+	while curr + timedelta <= end:
+		maxweeks = 0
+		sum = 0
+		count = 0
+		for n,l in longevity_threshhold_by_week(curr, threshhold).iteritems():
+			count += len(l)
+			sum += n * len(l)
+			maxweeks = max(maxweeks, n)
+		if curr + datetime.timedelta(weeks=maxweeks) > end:
+			return results
+		if count > 0:
+			results.append((curr.isoformat(), sum / count))
+		curr = curr + timedelta
+	# Don't imagine we'll ever make it here
+	print 'How odd!'
+
 
 def unique_song_ratio_by_week_drivetime(start, end):
 	weekdelta = datetime.timedelta(7)
@@ -180,5 +203,8 @@ end = datetime.date(2008, 11, 22)
 #	print(','+starttime.strftime("%H:%M")+'-'+endtime.strftime("%H:%M"))
 #	array_to_csv(unique_song_ratio_by_month_and_time(start, end, starttime, endtime))
 
-for n,l in played_threshhold_by_week(start, end, 5).iteritems():
-	print str(n) + ',' + str(len(l))
+#for n,l in longevity_threshhold_by_week(start, 5).iteritems():
+#	print str(n) + ',' + str(len(l))
+
+array_to_csv(longevity_avg_by_week(start, end, 5))
+
