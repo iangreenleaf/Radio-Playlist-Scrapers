@@ -8,6 +8,7 @@ from pytz import timezone
 import pytz
 import sys
 
+debug = False
 
 def append_songs(db, url, cushion_minutes=60):
 	connection = dbapi2.connect(db)
@@ -54,14 +55,15 @@ def append_songs(db, url, cushion_minutes=60):
 	c.execute('insert into parsed_info\
 			values (?, ?)', (thisdate.isoformat(), count))
 
-	if (len(inserted) > 5):
-		print db + ': Got ' + str(len(inserted)) + ' insertions, which seems odd'
-	if dupe_warning:
-		print db + ': Duplicates detected out of order'
-	if len(inserted) > 5 or dupe_warning:
-		print 'Inserted: ' + str(inserted)
-		print 'Dupes: ' + str(dupes)
-		print 'Recent songs: ' + str(recentsongsresult)
+	if debug:
+			if (len(inserted) > 5):
+				print db + ': Got ' + str(len(inserted)) + ' insertions, which seems odd'
+			if dupe_warning:
+				print db + ': Duplicates detected out of order'
+			if len(inserted) > 5 or dupe_warning:
+				print 'Inserted: ' + str(inserted)
+				print 'Dupes: ' + str(dupes)
+				print 'Recent songs: ' + str(recentsongsresult)
 
 	connection.commit()
 	c.close()
@@ -120,5 +122,5 @@ for key in stations:
 	url = stations[key]
 	sum += append_songs(db, url)
 
-if sum == 0:
+if debug and sum == 0:
 	print 'No insertions on any station. I\'m vaguely concerned.'
