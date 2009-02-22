@@ -115,23 +115,23 @@ def most_played_songs_by_month(start, end):
 	return aggregate_by_period(start, end, monthdelta,\
 			"count(*) as c, artist, title", "title, artist", "c desc limit 5")
 
-def threshhold_helper(begin, length, threshhold):
+def threshold_helper(begin, length, threshold):
 	subquery = "select count(*) as c, artist, title from songs where date_played >= ? and date_played < ? group by artist, title"
 	query = "select artist, title from (" + subquery + ") where c > ?"
-	c.execute(query, (begin, begin + length, threshhold))
+	c.execute(query, (begin, begin + length, threshold))
 	return c.fetchall()
 
-def longevity_threshhold_by_week(start, threshhold):
+def longevity_threshold_by_week(start, threshold):
 	weekdelta = datetime.timedelta(7)
 	#results = aggregate_by_period(start, end, weekdelta,\
-	#		"count(*) as c, artist, title", "title, artist", "c desc limit " + str(threshhold))
-	starting_set = threshhold_helper(start, weekdelta, threshhold)
+	#		"count(*) as c, artist, title", "title, artist", "c desc limit " + str(threshold))
+	starting_set = threshold_helper(start, weekdelta, threshold)
 	week_arr = {}
 	i = 0
 	while len(starting_set) > 0:
 		i += 1
 		week_arr[i] = []
-		new_week = threshhold_helper(start + weekdelta * i, weekdelta, threshhold)
+		new_week = threshold_helper(start + weekdelta * i, weekdelta, threshold)
 		# Not the fastest search, but that's okay
 		for song in starting_set:
 			found = False
@@ -146,7 +146,7 @@ def longevity_threshhold_by_week(start, threshhold):
 
 	return week_arr
 
-def longevity_avg_by_week(start, end, threshhold):
+def longevity_avg_by_week(start, end, threshold):
 	weekdelta = datetime.timedelta(7)
 	timedelta = weekdelta
 	curr = start
@@ -155,7 +155,7 @@ def longevity_avg_by_week(start, end, threshhold):
 		maxweeks = 0
 		sum = 0
 		count = 0
-		for n,l in longevity_threshhold_by_week(curr, threshhold).iteritems():
+		for n,l in longevity_threshold_by_week(curr, threshold).iteritems():
 			count += len(l)
 			sum += n * len(l)
 			maxweeks = max(maxweeks, n)
@@ -203,7 +203,7 @@ end = datetime.date(2008, 11, 22)
 #	print(','+starttime.strftime("%H:%M")+'-'+endtime.strftime("%H:%M"))
 #	array_to_csv(unique_song_ratio_by_month_and_time(start, end, starttime, endtime))
 
-#for n,l in longevity_threshhold_by_week(start, 5).iteritems():
+#for n,l in longevity_threshold_by_week(start, 5).iteritems():
 #	print str(n) + ',' + str(len(l))
 
 array_to_csv(longevity_avg_by_week(start, end, 5))
