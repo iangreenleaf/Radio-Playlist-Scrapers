@@ -162,7 +162,7 @@ def longevity_avg_by_week(start, end, threshhold):
 		if curr + datetime.timedelta(weeks=maxweeks) > end:
 			return results
 		if count > 0:
-			results.append((curr.isoformat(), sum / count))
+			results.append((curr.isoformat(), float(sum) / float(count)))
 		curr = curr + timedelta
 	# Don't imagine we'll ever make it here
 	print 'How odd!'
@@ -207,4 +207,3 @@ end = datetime.date(2008, 11, 22)
 #	print str(n) + ',' + str(len(l))
 
 array_to_csv(longevity_avg_by_week(start, end, 5))
-
