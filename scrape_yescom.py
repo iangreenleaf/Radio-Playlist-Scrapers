@@ -5,6 +5,7 @@ import re
 import datetime
 import sys
 import simplejson
+from pytz import timezone
 
 debug = False
 
@@ -79,7 +80,8 @@ def recent_songs(result):
 			continue
 		artist = normalize(artist)
 		song_title = normalize(song_title)
-		dt_parsed = datetime.datetime.fromtimestamp(row['at'] / 1000)
+		central = timezone('US/Central')
+		dt_parsed = datetime.datetime.fromtimestamp(row['at'] / 1000, central)
 		dt_parsed = dt_parsed.replace(microsecond = 0, second = 0)
 		yield (dt_parsed, artist, song_title)
 
