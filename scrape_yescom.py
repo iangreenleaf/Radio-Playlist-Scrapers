@@ -98,10 +98,10 @@ def normalize(string):
 	string = string.strip()
 	return string
 
-stations = {'something': 'http://r2b.yes.com/relay/fead789258e8b63acb4c17cfb5ded00d1fa2a3e9'}
+stations = {'jackfm': 'http://r2b.yes.com/relay/fead789258e8b63acb4c17cfb5ded00d1fa2a3e9',
+		'wlte': 'http://r2a.yes.com/relay/094a1780a307bd1610ba90fa4db7ab8445c1ecd7'}
 sum = 0
 for key in stations:
 	db = '/home/youngian/scraper/' + key + '.sqlite'
-	db = 'newtmpdb'
 	url = stations[key]
 	append_songs(db, url)
