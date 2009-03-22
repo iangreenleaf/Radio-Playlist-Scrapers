@@ -8,19 +8,47 @@ import simplejson
 
 debug = False
 
+def create_tables(db):
+	connection = dbapi2.connect(db)
+	c = connection.cursor()
+
+	# Comment all these statements if not starting with a blank slate
+	c.execute('drop table if exists songs')
+	c.execute('''create table songs
+			(id integer primary key,
+			time_played time,
+			date_played date,
+			artist text,
+			title text)''')
+	# The most important thing this does is store the "next" value that we use in requests
+	c.execute('drop table if exists last_parsed')
+	c.execute('''create table last_parsed
+			(id integer primary key,
+			next_id int,
+			date date,
+			count int)''')
+	# Put a dummy value in here
+	# This will start us off with a query that doesn't get any entries but gets the
+	# most recent "next" value. This entry may be deleted once a running database exists
+	c.execute('insert into last_parsed (next_id, date, count) values (1, "1980-01-01", 0)')
+	connection.commit()
+	c.close()
+
 def append_songs(db, url):
 	connection = dbapi2.connect(db)
 	c = connection.cursor()
 
 	thisdate = datetime.date.today()
 
-	#c.execute('select next_id from last_parsed order by date desc limit 1');
-	#nextAt = c.fetchone()[0]
-	nextAt = 31553
+	c.execute('select next_id from last_parsed order by id desc limit 1');
+	nextAt = c.fetchone()[0]
 	url = url + '/ev/' + str(nextAt)
 
+	page = urllib.urlopen(url)
+	result = simplejson.load(page)
+
 	count = 0
-	for song in last_10_songs(url):
+	for song in recent_songs(result):
 			dt = song[0]
 			date = dt.date()
 			time = dt.time()
@@ -31,8 +59,9 @@ def append_songs(db, url):
 					values (?, ?, ?, ?)', (date.isoformat(), time.isoformat(), artist, title))
 			count = count + 1
 
-	c.execute('insert into parsed_info\
-			values (?, ?)', (thisdate.isoformat(), count))
+	next_id = result['next']
+	c.execute('insert into last_parsed (next_id, date, count)\
+			values (?, ?, ?)', (next_id, thisdate.isoformat(), count))
 
 	connection.commit()
 	c.close()
@@ -40,11 +69,8 @@ def append_songs(db, url):
 	return
 
 
-def last_10_songs(url):
-	page = urllib.urlopen(url)
+def recent_songs(result):
 
-	result = simplejson.load(page)
-	next_id = result['next']
 	songs = result['entries']
 	for row in songs:
 		song_title = row['title']
@@ -53,13 +79,9 @@ def last_10_songs(url):
 			continue
 		artist = normalize(artist)
 		song_title = normalize(song_title)
-		#central = timezone('US/Central')
-		#dt_parsed = datetime.fromtimestamp(row['at'] / 1000, central)
 		dt_parsed = datetime.datetime.fromtimestamp(row['at'] / 1000)
-		#dt_parsed = dt_parsed.astimezone(central)
 		dt_parsed = dt_parsed.replace(microsecond = 0, second = 0)
-		yield (dt_parsed, artist, song_title, next_id)
-		#yield (datetime.datetime.now().time().strftime('%H:%M:%S'), artist, song_title)
+		yield (dt_parsed, artist, song_title)
 
 
 def normalize(string):
