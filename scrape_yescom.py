@@ -76,7 +76,9 @@ def recent_songs(result):
 
 	songs = result['entries']
 	for row in songs:
-		if 'title' not in row or 'by' not in row:
+		if row['type'] != 'song' \
+				or 'title' not in row \
+				or 'by' not in row:
 			continue
 		song_title = row['title']
 		artist = row['by']
