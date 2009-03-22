@@ -76,10 +76,10 @@ def recent_songs(result):
 
 	songs = result['entries']
 	for row in songs:
+		if 'title' not in row or 'by' not in row:
+			continue
 		song_title = row['title']
 		artist = row['by']
-		if artist == None or song_title == None:
-			continue
 		artist = normalize(artist)
 		song_title = normalize(song_title)
 		central = timezone('US/Central')
