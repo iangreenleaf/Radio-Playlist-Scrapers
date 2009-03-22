@@ -6,6 +6,8 @@ import datetime
 import sys
 import simplejson
 from pytz import timezone
+import random
+import time
 
 debug = False
 
@@ -101,9 +103,19 @@ def normalize(string):
 	return string
 
 stations = {'jackfm': 'http://r2b.yes.com/relay/fead789258e8b63acb4c17cfb5ded00d1fa2a3e9',
-		'wlte': 'http://r2a.yes.com/relay/094a1780a307bd1610ba90fa4db7ab8445c1ecd7'}
+		'wlte': 'http://r2a.yes.com/relay/094a1780a307bd1610ba90fa4db7ab8445c1ecd7',
+		'kqrs': 'http://r2a.yes.com/relay/863360c4ef7d198c8f12ef69a1f18af96300a23f',
+		'love105': 'http://r2b.yes.com/relay/1531a73d169ff69181a601070783a7bf0a8ce991',
+		'93x': 'http://r2b.yes.com/relay/741844eeb0a159f60d2649c44af4c2f9fc7b86e9',
+		'b96': 'http://r2a.yes.com/relay/e4e3a18874dbd40fc0005626eaa34784fd70cb64',
+		'ks95': 'http://r2b.yes.com/relay/9b252e6e30593bf881ba28937bb06a93caf238bf',
+		'kqrs': 'http://r2b.yes.com/relay/9b252e6e30593bf881ba28937bb06a93caf238bf'}
 sum = 0
 for key in stations:
 	db = '/home/youngian/scraper/' + key + '.sqlite'
 	url = stations[key]
+	#create_tables(db)
 	append_songs(db, url)
+
+	wait_time = random.randrange(0, 16, 1)
+	time.sleep(wait_time)
