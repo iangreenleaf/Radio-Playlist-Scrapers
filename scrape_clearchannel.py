@@ -72,6 +72,7 @@ def append_songs(db, url, cushion_minutes=60):
 
 
 def last_10_songs(url):
+	url = url + '&tos=http://www.iangreenleaf.com/TermsOfService'
 	page = urllib.urlopen(url)
 
 	soup = BeautifulSoup(page.read(), convertEntities=BeautifulSoup.HTML_ENTITIES)

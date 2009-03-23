@@ -46,6 +46,7 @@ def append_songs(db, url):
 	c.execute('select next_id from last_parsed order by id desc limit 1');
 	nextAt = c.fetchone()[0]
 	url = url + '/ev/' + str(nextAt)
+	url = url + '?tos=http://www.iangreenleaf.com/TermsOfService'
 
 	page = urllib.urlopen(url)
 	result = simplejson.load(page)
