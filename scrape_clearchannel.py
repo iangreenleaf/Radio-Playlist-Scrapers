@@ -115,6 +115,7 @@ def normalize(string):
 
 stations = {'cities97': 'http://www.cities97.com/iplaylist/playlist.html?last10=1',
 		'kdwb': 'http://www.kdwb.com/iplaylist/playlist.html?last10=1',
+		'k102': 'http://www.k102.com/iplaylist/playlist.html?last10=1',
 		'kool108': 'http://www.kool108.com/iplaylist/playlist.html?last10=1'}
 sum = 0
 for key in stations:
