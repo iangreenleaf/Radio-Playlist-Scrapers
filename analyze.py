@@ -151,19 +151,30 @@ def longevity_avg_by_week(start, end, threshold):
 	timedelta = weekdelta
 	curr = start
 	results = []
+	prev_week = []
 	while curr + timedelta <= end:
 		maxweeks = 0
 		sum = 0
 		count = 0
+		accepted = []
 		for n,l in longevity_threshold_by_week(curr, threshold).iteritems():
-			count += len(l)
-			sum += n * len(l)
+			# exclude songs that were on the previous week's list
+			for song in l:
+				if song in prev_week:
+					continue
+				else:
+					accepted.append(song)
+
+			count += len(accepted)
+			sum += n * len(accepted)
 			maxweeks = max(maxweeks, n)
+
 		if curr + datetime.timedelta(weeks=maxweeks) > end:
 			return results
 		if count > 0:
 			results.append((curr.isoformat(), float(sum) / float(count)))
 		curr = curr + timedelta
+		prev_week = accepted
 	# Don't imagine we'll ever make it here
 	print 'How odd!'
 
