@@ -87,15 +87,15 @@ def normalize(string):
 # Generator that yields (time, artist, title) tuples
 def songs_for_day(date):
 	# nab the page
-	page = urllib.urlopen("http://minnesota.publicradio.org/radio/services/the_current/songs_played/?month="+str(date.month)+"&day="+str(date.day)+"&year="+str(date.year))
+	page = urllib.urlopen("http://minnesota.publicradio.org/radio/services/the_current/playlist/playlist.php?month="+str(date.month)+"&day="+str(date.day)+"&year="+str(date.year))
 
 	# Use BeautifulSoup to parse the page structure
 	soup = BeautifulSoup(page.read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-	divs = soup.findAll(['div', 'h3'], { "class" : ["playlist_time", "playlist_title", "header"] })
+	divs = soup.findAll(['div', 'span'], { "class" : ["playTime", "songInfo", "hourH3"] })
 	for div in divs:
 		# This is an hour header, do all sorts of black magic to figure out
 		# if we're in AM or PM time
-		if div['class'] == "header" and div.name == "h3":
+		if div['class'] == "hourH3":
 			pm_re = re.compile('(11.*12.*AM)|PM')
 			fake_pm_re = re.compile('(11.*12.*PM)')
 			if div.string and pm_re.search(div.string) and not fake_pm_re.search(div.string):
@@ -103,7 +103,7 @@ def songs_for_day(date):
 			else:
 				post_meridiem = False
 		# If it's a time, parse it into a time object
-		elif div['class'] == "playlist_time":
+		elif div['class'] == "playTime":
 			timebits = map(int, div.string.split(':'))
 			# Make the hour military time
 			if post_meridiem and timebits[0] < 12:
@@ -113,10 +113,14 @@ def songs_for_day(date):
 				timebits[0] = 0
 			play_time = datetime.time(timebits[0], timebits[1])
 		# Otherwise it's a artist and title string, parse it
-		elif div['class'] == "playlist_title":
-			artist = div.a.string
-			song_title = ''.join(div.findAll(text=True, recursive=False))
-			song_title = re.sub(r'\s*-\s+', r'', song_title)
+		elif div['class'] == "songInfo":
+			if (div.h4.a != None):
+				song_title = div.h4.a.string
+				artist = ''.join(div.h4.findAll(text=True, recursive=False))
+			else:
+				myStrings = div.h4.findAll(text=True, recursive=False)
+				artist = myStrings[0]
+				song_title = myStrings[1]
 			# sanity check
 			if artist == None or song_title == None:
 				continue
@@ -126,7 +130,7 @@ def songs_for_day(date):
 
 # Just spit out some summary info to make sure things went okay
 def dump_db():
-	connection = sqlite3.connect('tmpdb')
+	connection = sqlite3.connect(db)
 	c = connection.cursor()
 	c.execute('select * from parsed_info')
 	for line in c:
@@ -140,6 +144,6 @@ else:
 	db = './tmpdb'
 
 start = datetime.date(2005, 12, 22)
-end = datetime.date(2008, 10, 22)
+end = datetime.date(2009, 5, 22)
 populate_songs(db, start, end)
 dump_db()
