@@ -178,6 +178,27 @@ def longevity_avg_by_week(start, end, threshold):
 	# Don't imagine we'll ever make it here
 	print 'How odd!'
 
+def longevity_max_by_week(start, end, threshold):
+	weekdelta = datetime.timedelta(7)
+	timedelta = weekdelta
+	curr = start
+	results = []
+	while curr + timedelta <= end:
+		maxweeks = 0
+		for n,l in longevity_threshold_by_week(curr, threshold).iteritems():
+
+			maxweeks = max(maxweeks, n)
+
+			if maxweeks == 42:
+				print l
+
+		if curr + datetime.timedelta(weeks=maxweeks) > end:
+			return results
+		results.append((curr.isoformat(), maxweeks))
+		curr = curr + timedelta
+	# Don't imagine we'll ever make it here
+	print 'How odd!'
+
 
 def unique_song_ratio_by_week_drivetime(start, end):
 	weekdelta = datetime.timedelta(7)
@@ -217,4 +238,5 @@ end = datetime.date(2008, 11, 22)
 #for n,l in longevity_threshold_by_week(start, 5).iteritems():
 #	print str(n) + ',' + str(len(l))
 
-array_to_csv(longevity_avg_by_week(start, end, 5))
+#array_to_csv(longevity_avg_by_week(start, end, 5))
+array_to_csv(longevity_max_by_week(start, end, 2))
