@@ -117,13 +117,16 @@ def songs_for_day(date):
 			if (div.h4.a != None):
 				song_title = div.h4.a.string
 				artist = ''.join(div.h4.findAll(text=True, recursive=False))
+				# sanity check
+				if artist == None or song_title == None:
+					continue
 			else:
 				myStrings = div.h4.findAll(text=True, recursive=False)
+				# sanity check
+				if len(myStrings) < 2:
+					continue
 				artist = myStrings[0]
 				song_title = myStrings[1]
-			# sanity check
-			if artist == None or song_title == None:
-				continue
 			artist = normalize(artist)
 			song_title = normalize(song_title)
 			yield (play_time.isoformat(), artist, song_title)
