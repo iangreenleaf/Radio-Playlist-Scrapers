@@ -1,4 +1,10 @@
 #!/home/youngian/local/bin/python
+
+##
+## Scrape a variety of Clearchannel-powered radio websites for their
+## most recently played songs. Should be run once every ~10-20 minutes.
+##
+
 import urllib
 from BeautifulSoup import BeautifulSoup
 from pysqlite2 import dbapi2

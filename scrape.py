@@ -16,6 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+##
+## Scrape the website for 89.3 The Current, retrieving all songs played
+## during the given date range.
+##
+## Accepts one argument, the name of the database to write to
+##
+
 import urllib
 from BeautifulSoup import BeautifulSoup
 import sqlite3

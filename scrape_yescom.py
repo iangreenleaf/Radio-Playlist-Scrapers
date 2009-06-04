@@ -1,4 +1,10 @@
 #!/home/youngian/local/bin/python
+
+##
+## Scrape Yes.com to retrieve recently played songs.
+## Should be run regularly (every 15 minutes works well for me).
+##
+
 import urllib
 from pysqlite2 import dbapi2
 import re
@@ -11,6 +17,7 @@ import time
 
 debug = False
 
+# Initialize the databases. Should be called once when first starting collection.
 def create_tables(db):
 	connection = dbapi2.connect(db)
 	c = connection.cursor()
