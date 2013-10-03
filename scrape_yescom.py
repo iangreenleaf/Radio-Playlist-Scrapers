@@ -66,7 +66,11 @@ def append_songs(db, url):
 	thisdate = datetime.date.today()
 
 	c.execute('select next_id from last_parsed order by id desc limit 1');
-	nextAt = c.fetchone()[0]
+	nextAt = c.fetchone()
+	if (nextAt):
+		nextAt = nextAt[0]
+	else:
+		nextAt = 1
 	url = url + '/ev/' + str(nextAt)
 	url = url + '?tos=http://www.iangreenleaf.com/TermsOfService'
 
