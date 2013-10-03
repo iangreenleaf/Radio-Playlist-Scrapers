@@ -141,7 +141,7 @@ stations = {'cities97': 'http://www.cities97.com/iplaylist/playlist.html?last10=
 		'kool108': 'http://www.kool108.com/iplaylist/playlist.html?last10=1'}
 sum = 0
 for key in stations:
-	db = os.path.dirname(__file__) + '/' + key + '.sqlite'
+	db = os.path.abspath(os.path.dirname(__file__)) + '/' + key + '.sqlite'
 	url = stations[key]
 	sum += append_songs(db, url)
 

@@ -136,7 +136,7 @@ stations = {'jackfm': 'http://r2b.yes.com/relay/fead789258e8b63acb4c17cfb5ded00d
 		'ks95': 'http://r2b.yes.com/relay/9b252e6e30593bf881ba28937bb06a93caf238bf'}
 sum = 0
 for key in stations:
-	db = os.path.dirname(__file__) + '/' + key + '.sqlite'
+	db = os.path.abspath(os.path.dirname(__file__)) + '/' + key + '.sqlite'
 	url = stations[key]
 	#create_tables(db)
 	append_songs(db, url)
