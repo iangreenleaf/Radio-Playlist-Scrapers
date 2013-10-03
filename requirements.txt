@@ -1,0 +1,4 @@
+-e bs
+pysqlite==2.5.5
+pytz==2010b
+simplejson==2.0.9
