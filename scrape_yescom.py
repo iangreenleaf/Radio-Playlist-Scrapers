@@ -1,5 +1,3 @@
-#!/home/youngian/local/bin/python
-
 # Ian Young
 # December 2008
 
@@ -26,6 +24,7 @@ from pysqlite2 import dbapi2
 import re
 import datetime
 import sys
+import os
 import simplejson
 from pytz import timezone
 import random
@@ -137,7 +136,7 @@ stations = {'jackfm': 'http://r2b.yes.com/relay/fead789258e8b63acb4c17cfb5ded00d
 		'ks95': 'http://r2b.yes.com/relay/9b252e6e30593bf881ba28937bb06a93caf238bf'}
 sum = 0
 for key in stations:
-	db = '/home/youngian/scraper/' + key + '.sqlite'
+	db = os.path.dirname(__file__) + '/' + key + '.sqlite'
 	url = stations[key]
 	#create_tables(db)
 	append_songs(db, url)

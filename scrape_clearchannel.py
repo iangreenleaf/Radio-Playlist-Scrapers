@@ -1,5 +1,3 @@
-#!/home/youngian/local/bin/python
-
 # Ian Young
 # December 2008
 
@@ -29,6 +27,7 @@ import datetime
 from pytz import timezone
 import pytz
 import sys
+import os
 
 debug = False
 
@@ -142,7 +141,7 @@ stations = {'cities97': 'http://www.cities97.com/iplaylist/playlist.html?last10=
 		'kool108': 'http://www.kool108.com/iplaylist/playlist.html?last10=1'}
 sum = 0
 for key in stations:
-	db = '/home/youngian/scraper/' + key + '.sqlite'
+	db = os.path.dirname(__file__) + '/' + key + '.sqlite'
 	url = stations[key]
 	sum += append_songs(db, url)
 
